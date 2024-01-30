@@ -69,6 +69,6 @@ docker compose exec backend cp -r /app/collected_static/. /backend_static/static
 - На странице `http://127.0.0.1:8000/docs/` можно ознакомиться с
 документацией проекта.
 
-## Авторы
+## Автор
 
 [Пилипенко Артем](https://github.com/p-artyom)
