@@ -1,3 +1,4 @@
+from django.db import transaction
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404
 from drf_spectacular.utils import (
@@ -49,6 +50,7 @@ from recipes.models import Product, ProductInRecipe, Recipe
     },
 )
 @api_view(['GET'])
+@transaction.atomic
 def add_product_to_recipe(request: HttpRequest) -> HttpResponse:
     recipe = get_object_or_404(
         Recipe,
@@ -102,12 +104,15 @@ def add_product_to_recipe(request: HttpRequest) -> HttpResponse:
     },
 )
 @api_view(['GET'])
+@transaction.atomic
 def cook_recipe(request: HttpRequest) -> HttpResponse:
     recipe = get_object_or_404(
         Recipe,
         id=request.query_params.get('recipe_id'),
     )
-    products_in_recipe = ProductInRecipe.objects.filter(recipe=recipe)
+    products_in_recipe = ProductInRecipe.objects.select_for_update().filter(
+        recipe=recipe,
+    )
     if not products_in_recipe:
         return Response(
             {'message': f'Рецепт `{recipe.name}` не содержит продукты'},
